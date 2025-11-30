@@ -1,0 +1,9 @@
+venv\Scripts\activate
+
+swagger
+http://127.0.0.1:8000/docs
+
+migracja
+alembic revision --autogenerate -m "Initial migration"
+alembic upgrade head
+
