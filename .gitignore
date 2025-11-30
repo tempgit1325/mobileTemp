@@ -14,3 +14,4 @@ falat/
 .env
 migrations/
 SqlKomendy.txt
+__pycache__/
