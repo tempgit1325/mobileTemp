@@ -45,7 +45,3 @@ def add_shipments():
 
     return render_template("add_shipments.html")
 
-
-@shipments_bp.route("/overview")
-def overview():
-    return render_template("overview.html")
