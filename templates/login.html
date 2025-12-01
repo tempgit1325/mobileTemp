@@ -7,6 +7,12 @@
     <title>Login</title>
 </head>
 <body>
+    <a href="{{ url_for('show_views.index') }}">index</a>
+    <a href="{{ url_for('user.register') }}">register</a>
+
+    <p>a</p>
+    <p>a</p>
+
     <form method="POST" action="{{ url_for('user.login') }}">
         <label for="email">Email</label><br>
         <input type="text" id="email" name="email" required><br>

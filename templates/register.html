@@ -7,6 +7,10 @@
     <title>Register</title>
 </head>
 <body>
+
+    <a href="{{ url_for('show_views.index') }}">index</a>
+    <a href="{{ url_for('user.login') }}">login</a>
+
     <form method="POST" action="{{ url_for('user.register') }}">
         <label for="email">Email</label><br>
         <input type="text" id="email" name="email" required><br>

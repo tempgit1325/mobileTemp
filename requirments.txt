@@ -1,1 +1,1 @@
-pip install flask psycopg2-binary flask_sqlalchemy python-dotenv Flask-Login 
+pip install flask psycopg2-binary flask_sqlalchemy python-dotenv Flask-Login PyJWT

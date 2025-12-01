@@ -18,3 +18,7 @@ def overview():
         users = session.query(User).all()
         shipments = session.query(Shipment).all()
     return render_template("overview.html", users=users, shipments=shipments)
+
+@show_views_bp.route("/logout")
+def logout():
+    print("asd")

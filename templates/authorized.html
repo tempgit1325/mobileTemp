@@ -7,8 +7,9 @@
     <title>authorized</title>
 </head>
 <body>
+    <a href="{{ url_for('show_views.logout') }}">logout</a><br>
 <p>authorised</p>
-<a href="{{ url_for('overview') }}">overwiew</a>
+<a href="{{ url_for('show_views.overview') }}">overwiew</a>
 <a href="{{ url_for('shipments.add_shipments') }}">add_shipments</a>
 
 </body>

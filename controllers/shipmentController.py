@@ -6,6 +6,7 @@ shipments_bp = Blueprint("shipments", __name__)
 
 @shipments_bp.route("/add_shipments", methods=["GET", "POST"])
 def add_shipments():
+    
     session = Session()
     error = None
 
@@ -41,7 +42,7 @@ def add_shipments():
         session.commit()
         session.close()
 
-        return redirect(url_for("shipments.overview"))
+        return redirect(url_for("show_views.overview"))
 
     return render_template("add_shipments.html")
 

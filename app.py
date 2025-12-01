@@ -7,6 +7,7 @@ from controllers.shipmentController import shipments_bp
 from controllers.userController import user_bp
 from controllers.showViewsController import show_views_bp
 from models.database import engine
+import random
 
 app = Flask(__name__)
 

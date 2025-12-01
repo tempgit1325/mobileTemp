@@ -7,8 +7,17 @@
     <title>add_shipments</title>
 </head>
 <body>
+<a href="{{ url_for('show_views.logout') }}">logout</a><br>
+
 <p>add_shipments</p>
-<a href="{{ url_for('overview') }}">overwiew</a>
+<a href="{{ url_for('show_views.overview') }}">overwiew</a>
+
+<p>pickup</p>
+<p>49.78576734609803</p>
+<p>19.06021669621735</p>
+<p>delivery</p>
+<p>49.80993354439852</p>
+<p>19.043881326530208</p>
 
 <form method="POST" action="{{ url_for('shipments.add_shipments') }}">
     <label>Email of sender</label><br>
