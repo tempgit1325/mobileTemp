@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, redirect, url_for
+from flask import Blueprint, request, render_template, redirect, url_for,make_response
 from models.models import  User,Shipment
 from models.database import Session
 
@@ -26,10 +26,9 @@ def show_all():
         shipments = session.query(Shipment).all()
     return render_template("show_all.html", users=users, shipments=shipments)
 
-@show_views_bp.route("/show_map")
-def show_map():
-    return render_template("show_map.html")
-
 @show_views_bp.route("/logout")
 def logout():
-    print("asd")
+    resp = make_response(redirect(url_for("user.login")))
+    resp.delete_cookie("auth")
+    return resp
+

@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for,make_response
 from models.models import  Shipment, User
 from models.database import Session
+from .userController import get_current_user
 
 shipments_bp = Blueprint("shipments", __name__)
 
@@ -46,3 +47,19 @@ def add_shipments():
 
     return render_template("add_shipments.html")
 
+@shipments_bp.route("/follow_selected_delivery", methods=["GET", "POST"])
+def follow_selected_delivery():
+    with Session() as session:
+        current_id_user=get_current_user()
+
+        shipments = session.query(Shipment).filter(
+            Shipment.user_sender == current_id_user,
+            Shipment.status == "waiting"
+        ).all()
+        
+        return render_template("shipment_list.html", shipments=shipments)
+
+
+@shipments_bp.route("/show_map" , methods=["GET", "POST"])
+def show_map():
+    return render_template("show_map.html")

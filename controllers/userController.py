@@ -37,7 +37,6 @@ def register():
                 secure=False,      
                 samesite="Strict"
             )
-
             return resp
 
     return render_template("register.html")
@@ -70,3 +69,16 @@ def login():
             return resp
 
     return render_template("login.html")
+
+def get_current_user():
+    token = request.cookies.get("auth")
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET, algorithms=["HS256"])
+        return payload["user_id"]  
+    
+    except jwt.ExpiredSignatureError:
+        return None
+    except:
+        return None
