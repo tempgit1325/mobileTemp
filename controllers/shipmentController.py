@@ -59,7 +59,17 @@ def follow_selected_delivery():
         
         return render_template("shipment_list.html", shipments=shipments)
 
-
-@shipments_bp.route("/show_map" , methods=["GET", "POST"])
+@shipments_bp.route("/show_map", methods=["POST"])
 def show_map():
-    return render_template("show_map.html")
+    shipment_id = request.form.get("shipment_id")
+
+    with Session() as session:
+        shipment = session.query(Shipment).filter(Shipment.id == shipment_id).first()
+
+        if not shipment:
+            return "Shipment not found", 404
+
+    return render_template(
+        "show_map.html",
+        shipment=shipment
+    )

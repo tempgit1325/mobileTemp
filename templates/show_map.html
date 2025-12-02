@@ -7,31 +7,54 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-    <title>Overview</title>
+    <title>show_map</title>
 </head>
 <body>
-    <a href="{{ url_for('show_views.logout') }}">logout</a><br>
-
+<a href="{{ url_for('show_views.logout') }}">logout</a><br>
 <p>map</p>
-<div id="map" style="height: 500px;"></div>
+<div id="map"
+    data-pickup-lat="{{ shipment.pickup_lat or 0 }}" 
+    data-pickup-lng="{{ shipment.pickup_lng or 0 }}"
+    data-delivery-lat="{{ shipment.delivery_lat or 0 }}" 
+    data-delivery-lng="{{ shipment.delivery_lng or 0 }}" 
+    style="height: 500px;"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
 
 <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
+// Pobranie danych z div
+var mapDiv = document.getElementById('map');
 
-    var marker = L.marker([51.5, -0.09]).addTo(map)
-        .bindPopup('A pretty CSS popup.<br> Easily customizable.');
+var pickup = [
+    parseFloat(mapDiv.dataset.pickupLat),
+    parseFloat(mapDiv.dataset.pickupLng)
+];
 
+var delivery = [
+    parseFloat(mapDiv.dataset.deliveryLat),
+    parseFloat(mapDiv.dataset.deliveryLng)
+];
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
+// Inicjalizacja mapy
+var map = L.map('map').setView(pickup, 13);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+// Markery
+L.marker(pickup).addTo(map).bindPopup('Pickup location');
+L.marker(delivery).addTo(map).bindPopup('Delivery location');
+
+// Linia
+L.polyline([pickup, delivery], {color: 'blue'}).addTo(map);
+
+// Dopasowanie widoku do obu punktów
+map.fitBounds([pickup, delivery]);
 
 </script>
+
+
 
 </body>
 </html>
