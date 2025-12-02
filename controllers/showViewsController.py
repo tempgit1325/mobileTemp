@@ -26,6 +26,9 @@ def show_all():
         shipments = session.query(Shipment).all()
     return render_template("show_all.html", users=users, shipments=shipments)
 
+@show_views_bp.route("/show_map")
+def show_map():
+    return render_template("show_map.html")
 
 @show_views_bp.route("/logout")
 def logout():
