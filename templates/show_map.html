@@ -45,7 +45,6 @@
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-
     window.routing = L.Routing.control({
         waypoints: [
             L.latLng(pickup),
@@ -57,7 +56,6 @@
             } else if (i === 1) {
                 return L.marker(waypoint.latLng).bindPopup("Delivery location");
             }
-            // jeśli więcej waypointów, można zwrócić null
             return null;
         }
     }).addTo(map);
