@@ -73,3 +73,4 @@ def show_map():
         "show_map.html",
         shipment=shipment
     )
+

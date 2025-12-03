@@ -1,0 +1,9 @@
+COPY users (id, email, password)
+FROM 'C:\Program Files\PostgreSQL\18\data\users.csv'
+DELIMITER ','
+CSV HEADER;
+
+COPY shipments (id, user_sender, user_receiver, pickup_lat, pickup_lng, delivery_lat, delivery_lng, status, created_at)
+FROM 'C:\Program Files\PostgreSQL\18\data\shipments.csv'
+DELIMITER ','
+CSV HEADER;

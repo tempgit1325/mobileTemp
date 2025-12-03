@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "leaflet.offline": "^3.2.0"
   }
 }
