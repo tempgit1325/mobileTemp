@@ -24,4 +24,8 @@ app.register_blueprint(show_views_bp)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(
+            host='localhost',
+            debug=True,
+            ssl_context=('certyficats/cert.pem', 'certyficats/key.pem')
+        )

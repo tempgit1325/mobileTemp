@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <title>show_map</title>
+</head>
+<body>
+<a href="{{ url_for('show_views.logout') }}">logout</a><br>
+<p>map</p>
+<button id="enableNotif">Włącz powiadomienia</button>
+
+<a href="https://www.google.com/maps/dir/{{shipment.pickup_lat}},{{shipment.pickup_lng}}/{{ shipment.delivery_lat}},{{ shipment.delivery_lng}}">GoogleMaps</a><br>
+
+<div id="map"
+    data-pickup-lat="{{ shipment.pickup_lat or 0 }}" 
+    data-pickup-lng="{{ shipment.pickup_lng or 0 }}"
+    data-delivery-lat="{{ shipment.delivery_lat or 0 }}" 
+    data-delivery-lng="{{ shipment.delivery_lng or 0 }}" 
+    style="height: 500px;"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+<script>
+    var mapDiv = document.getElementById('map');
+
+    var pickup = [
+        parseFloat(mapDiv.dataset.pickupLat),
+        parseFloat(mapDiv.dataset.pickupLng)
+    ];
+
+    var delivery = [
+        parseFloat(mapDiv.dataset.deliveryLat),
+        parseFloat(mapDiv.dataset.deliveryLng)
+    ];
+
+    var map = L.map('map').setView(pickup, 13);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+    window.routing = L.Routing.control({
+        waypoints: [
+            L.latLng(pickup),
+            L.latLng(delivery)
+        ],
+        createMarker: function(i, waypoint, n){
+            if (i === 0) {
+                return L.marker(waypoint.latLng).bindPopup("Pickup location");
+            } else if (i === 1) {
+                return L.marker(waypoint.latLng).bindPopup("Delivery location");
+            }
+            return null;
+        }
+    }).addTo(map);
+
+    function distanceToEnd(currentLatLng, route) {
+        let remaining = 0;
+        let found = false;
+
+        for (let i = 0; i < route.coordinates.length - 1; i++) {
+            let from = route.coordinates[i];
+            let to = route.coordinates[i+1];
+
+            if (!found && from.lat === currentLatLng.lat && from.lng === currentLatLng.lng) {
+                found = true;
+            }
+
+            if (found) {
+                remaining += from.distanceTo(to); // distanceTo z Leaflet LatLng
+            }
+        }
+        return remaining; // w metrach
+    }
+
+
+</script>
+
+
+
+</body>
+</html>

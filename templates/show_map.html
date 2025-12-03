@@ -31,114 +31,60 @@
 <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
 
 <script>
-    var mapDiv = document.getElementById('map');
+var mapDiv = document.getElementById('map');
 
-    var pickup = [
-        parseFloat(mapDiv.dataset.pickupLat),
-        parseFloat(mapDiv.dataset.pickupLng)
-    ];
+var pickup = [
+    parseFloat(mapDiv.dataset.pickupLat),
+    parseFloat(mapDiv.dataset.pickupLng)
+];
 
-    var delivery = [
-        parseFloat(mapDiv.dataset.deliveryLat),
-        parseFloat(mapDiv.dataset.deliveryLng)
-    ];
+var delivery = [
+    parseFloat(mapDiv.dataset.deliveryLat),
+    parseFloat(mapDiv.dataset.deliveryLng)
+];
 
-    var map = L.map('map').setView(pickup, 13);
+var map = L.map('map').setView(pickup, 13);
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-    window.routing = L.Routing.control({
-        waypoints: [
-            L.latLng(pickup),
-            L.latLng(delivery)
-        ],
-        createMarker: function(i, waypoint, n){
-            if (i === 0) {
-                return L.marker(waypoint.latLng).bindPopup("Pickup location");
-            } else if (i === 1) {
-                return L.marker(waypoint.latLng).bindPopup("Delivery location");
-            }
-            return null;
-        }
-    }).addTo(map);
-
-    window.routing.getPlan().on('waypointschanged', function(e) {
-        let wps = e.waypoints;
-        delivery[0] = wps[1].latLng.lat;
-        delivery[1] = wps[1].latLng.lng;
-
-        console.log("Nowe delivery:", delivery);
-    });
-
-    map.fitBounds([pickup, delivery]);
-
-
-    // ============================
-    //     FUNKCJA DISTANCE
-    // ============================
-    function distanceKm(lat1, lon1, lat2, lon2) {
-        var R = 6371; 
-        var dLat = (lat2 - lat1) * Math.PI / 180;
-        var dLon = (lon2 - lon1) * Math.PI / 180;
-
-        var a = 
-            0.5 - Math.cos(dLat)/2 +
-            Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
-            (1 - Math.cos(dLon)) / 2;
-
-        return R * 2 * Math.asin(Math.sqrt(a));
+window.routing = L.Routing.control({
+    waypoints: [
+        L.latLng(pickup),
+        L.latLng(delivery)
+    ],
+    createMarker: function(i, waypoint, n){
+        if (i === 0) return L.marker(waypoint.latLng).bindPopup("Pickup location");
+        if (i === 1) return L.marker(waypoint.latLng).bindPopup("Delivery location");
+        return null;
     }
-
-const GEOFENCE_RADIUS_KM = 0.25; 
+}).addTo(map);
 let notified = false;
+let GEOFENCE_RADIUS_METERS = 0.25 * 1000; // 250 m
 
-// Funkcja distanceKm bez zmian
-function distanceKm(lat1, lon1, lat2, lon2) {
-    var R = 6371; 
-    var dLat = (lat2 - lat1) * Math.PI / 180;
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-
-    var a = 
-        0.5 - Math.cos(dLat)/2 +
-        Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
-        (1 - Math.cos(dLon)) / 2;
-
-    return R * 2 * Math.asin(Math.sqrt(a));
+function checkGeofence(userLatLng, destinationLatLng, radiusMeters) {
+    const distance = userLatLng.distanceTo(destinationLatLng);
+    if (distance <= radiusMeters) {
+        console.log("w strefie");
+        return true;
+    }
+    return false;
 }
 
-// PROŚBA O POWIADOMIENIA
-if (Notification.permission !== "granted") {
-    Notification.requestPermission();
-}
-
-// GEOLACJA — watchPosition działa dynamicznie
 navigator.geolocation.watchPosition(
     pos => {
-        let userLat = pos.coords.latitude;
-        let userLng = pos.coords.longitude;
+        const userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        const insideGeofence = checkGeofence(userLatLng, delivery, GEOFENCE_RADIUS_METERS);
 
-        let dist = distanceKm(userLat, userLng, delivery[0], delivery[1]);
-        console.log("Dystans do celu:", dist, "km");
+        console.log("Dystans do celu:", userLatLng.distanceTo(delivery), "m");
 
-        if (dist <= GEOFENCE_RADIUS_KM && !notified) {
+        if (insideGeofence && !notified) {
             notified = true;
-
-            new Notification("Jesteś blisko!", {
-                body: "Pozostało mniej niż 250 metrów do miejsca dostawy.",
-            });
-
-            alert("Jesteś mniej niż 250 m od celu!");
+            alert("Jesteś blisko celu!");
         }
     },
-    error => {
-        console.error("Geolokalizacja błąd:", error);
-        if (error.code === 1) alert("Zezwól na dostęp do lokalizacji.");
-        if (error.code === 2) alert("Nie można uzyskać lokalizacji.");
-        if (error.code === 3) alert("Przekroczono czas oczekiwania.");
-    },
-    { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
-    );
-
+    err => console.error(err),
+    { enableHighAccuracy: true }
+);
 </script>
 
 

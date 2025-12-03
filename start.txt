@@ -1,3 +1,6 @@
 flask run --reload
 
 flask run --debug --reload
+
+#https
+flask run --cert=certyficats/cert.pem --key=certyficats/key.pem --reload
