@@ -57,7 +57,7 @@ def follow_selected_delivery():
             Shipment.status == "waiting"
         ).all()
         
-        return render_template("shipment_list.html", shipments=shipments)
+        return render_template("follow_selected_delivery.html", shipments=shipments)
 
 @shipments_bp.route("/show_map", methods=["POST"])
 def show_map():

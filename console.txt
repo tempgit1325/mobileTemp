@@ -7,6 +7,11 @@ routing.getPlan().setWaypoints([
 
 #docelowe
 routing.getPlan().setWaypoints([
-    L.latLng(49.80993354439852,19.043881326530208),
+    L.latLng(49.80993354439840,19.043881326530180),
+    L.latLng(49.80993354439852,19.043881326530208)
+]);
+
+routing.getPlan().setWaypoints([
+    L.latLng(49.80993354439840,19.043881326530180),
     L.latLng(49.80993354439852,19.043881326530208)
 ]);
