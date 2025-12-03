@@ -16,6 +16,8 @@ class Shipment(Base):
     delivery_lat = Column(Float)
     delivery_lng = Column(Float)
 
+    message_target = Column(String, default="package is fragile")
+
     status = Column(String, default="waiting")
     created_at = Column(DateTime, default=datetime.utcnow)
 
