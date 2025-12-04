@@ -33,42 +33,44 @@
 <script>
 var mapDiv = document.getElementById('map');
 
-let notified = false;
 let GEOFENCE_RADIUS_METERS = 250; 
 
-// Tworzymy oryginalny obiekt shipment
 const shipmentData = {
-    pickup_lat: parseFloat(mapDiv.dataset.pickupLat),
-    pickup_lng: parseFloat(mapDiv.dataset.pickupLng),
-    delivery_lat: parseFloat(mapDiv.dataset.deliveryLat),
-    delivery_lng: parseFloat(mapDiv.dataset.deliveryLng)
+    pickup_lat_lng: [
+        parseFloat(mapDiv.dataset.pickupLat),
+        parseFloat(mapDiv.dataset.pickupLng)
+    ],
+    delivery_lat_lng: [
+        parseFloat(mapDiv.dataset.deliveryLat),
+        parseFloat(mapDiv.dataset.deliveryLng)
+    ]
 };
 
-// 🔹 Proxy, które reaguje na każdą zmianę w shipment
 window.shipment = new Proxy(shipmentData, {
     set(target, prop, value) {
         target[prop] = value;
         console.log(`shipment.${prop} zmienione na ${value}`);
-        // Automatycznie odświeżamy trasę po zmianie współrzędnych
-        refreshMap();
+        
+        // Poprawne rozpakowanie tablicy delivery
+        const [userLat, userLng] = shipmentData.delivery_lat_lng;
+        refreshMap(userLat, userLng); // Używamy właściwych zmiennych
+
         return true;
     }
 });
 
 function getPickupLatLng() {
-    return L.latLng(shipment.pickup_lat, shipment.pickup_lng);
+    return L.latLng(shipmentData.pickup_lat_lng);
 }
 
 function getDeliveryLatLng() {
-    return L.latLng(shipment.delivery_lat, shipment.delivery_lng);
+    return L.latLng(shipmentData.delivery_lat_lng);
 }
 
-// Inicjalizacja mapy
 var map = L.map('map').setView(getPickupLatLng(), 13);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
-// Routing
 window.routing = L.Routing.control({
     waypoints: [
         getPickupLatLng(),
@@ -81,9 +83,8 @@ window.routing = L.Routing.control({
     }
 }).addTo(map);
 
-// Geofence
 function checkGeofence(userLatLng, destinationLatLng, radiusMeters) {
-    const distance = userLatLng.distanceTo(destinationLatLng);
+    var distance = userLatLng.distanceTo(destinationLatLng);
     if (distance <= radiusMeters) {
         console.log("W strefie geofence");
         return true;
@@ -100,45 +101,38 @@ function updateRoute() {
     ]);
 }
 
-// Odświeżanie mapy i dystansu
+// Odświeżanie mapy
 function refreshMap(userLat, userLng) {
-    const userLatLng = userLat && userLng ? L.latLng(userLat, userLng) : map.getCenter();
-    const deliveryLatLng = getDeliveryLatLng();
+    var userLatLng = userLat != null && userLng != null ? L.latLng(userLat, userLng) : map.getCenter();
+    var deliveryLatLng = getDeliveryLatLng();
 
     updateRoute();
 
-    const insideGeofence = checkGeofence(userLatLng, deliveryLatLng, GEOFENCE_RADIUS_METERS);
+    var insideGeofence = checkGeofence(userLatLng, deliveryLatLng, GEOFENCE_RADIUS_METERS);
 
     console.log("Dystans do celu:", userLatLng.distanceTo(deliveryLatLng), "m");
 
-    if (insideGeofence && !notified) {
-        notified = true;
+    if (insideGeofence) {
         alert("Jesteś blisko celu!");
     }
 }
 
-// Geolokalizacja użytkownika
+// Geolokalizacja
 navigator.geolocation.watchPosition(
     pos => {
-        const userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
-        const deliveryLatLng = getDeliveryLatLng();
-        const insideGeofence = checkGeofence(userLatLng, deliveryLatLng, GEOFENCE_RADIUS_METERS);
+        var userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        var deliveryLatLng = getDeliveryLatLng();
+        var insideGeofence = checkGeofence(userLatLng, deliveryLatLng, GEOFENCE_RADIUS_METERS);
 
         console.log("Dystans do celu:", userLatLng.distanceTo(deliveryLatLng), "m");
 
-        if (insideGeofence && !notified) {
-            notified = true;
+        if (insideGeofence) {
             alert("Jesteś blisko celu!");
         }
     },
     err => console.error(err),
     { enableHighAccuracy: true }
 );
-
-// Funkcja do ręcznej symulacji pozycji w konsoli
-window.simulatePosition = function(lat, lng) {
-    refreshMap(lat, lng);
-};
 </script>
 
 </body>
