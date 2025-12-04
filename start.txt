@@ -2,5 +2,15 @@ flask run --reload
 
 flask run --debug --reload
 
-#https
+#https trzeba 
+python app.py
+
+
+
+#nie dziala 
+
 flask run --cert=certyficats/cert.pem --key=certyficats/key.pem --reload
+
+flask run --cert=certyficats/cert.crt --key=certyficats/key.pem --reload
+
+app.run(host='127.0.0.1', port=5000, ssl_context=('certyficats/cert.crt','certyficats/key.pem'))

@@ -33,24 +33,32 @@
 <script>
 var mapDiv = document.getElementById('map');
 
-var pickup = [
-    parseFloat(mapDiv.dataset.pickupLat),
-    parseFloat(mapDiv.dataset.pickupLng)
-];
+// 🔹 Globalny obiekt shipment — edytowalny w konsoli
+window.shipment = {
+    pickup_lat: parseFloat(mapDiv.dataset.pickupLat),
+    pickup_lng: parseFloat(mapDiv.dataset.pickupLng),
+    delivery_lat: parseFloat(mapDiv.dataset.deliveryLat),
+    delivery_lng: parseFloat(mapDiv.dataset.deliveryLng)
+};
 
-var delivery = [
-    parseFloat(mapDiv.dataset.deliveryLat),
-    parseFloat(mapDiv.dataset.deliveryLng)
-];
+// 🔹 Funkcje pomocnicze do pobrania współrzędnych
+function getPickupLatLng() {
+    return L.latLng(shipment.pickup_lat, shipment.pickup_lng);
+}
+function getDeliveryLatLng() {
+    return L.latLng(shipment.delivery_lat, shipment.delivery_lng);
+}
 
-var map = L.map('map').setView(pickup, 13);
+// 🔹 Inicjalizacja mapy
+var map = L.map('map').setView(getPickupLatLng(), 13);
 
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
+// 🔹 Routing
 window.routing = L.Routing.control({
     waypoints: [
-        L.latLng(pickup),
-        L.latLng(delivery)
+        getPickupLatLng(),
+        getDeliveryLatLng()
     ],
     createMarker: function(i, waypoint, n){
         if (i === 0) return L.marker(waypoint.latLng).bindPopup("Pickup location");
@@ -58,24 +66,50 @@ window.routing = L.Routing.control({
         return null;
     }
 }).addTo(map);
+
+// 🔹 Geofence
 let notified = false;
 let GEOFENCE_RADIUS_METERS = 0.25 * 1000; // 250 m
 
 function checkGeofence(userLatLng, destinationLatLng, radiusMeters) {
     const distance = userLatLng.distanceTo(destinationLatLng);
     if (distance <= radiusMeters) {
-        console.log("w strefie");
+        console.log("W strefie geofence");
         return true;
     }
     return false;
 }
 
+// 🔹 Funkcja do aktualizacji trasy LRM
+function updateRoute() {
+    if (!window.routing) return;
+    window.routing.setWaypoints([
+        getPickupLatLng(),
+        getDeliveryLatLng()
+    ]);
+}
+
+// 🔹 Funkcja do odświeżenia mapy, dystansu i geofence
+function refreshMap(userLat, userLng) {
+    const userLatLng = userLat && userLng ? L.latLng(userLat, userLng) : map.getCenter();
+    const deliveryLatLng = getDeliveryLatLng();
+
+    updateRoute();
+
+    // geofence
+    if (!notified && userLatLng.distanceTo(deliveryLatLng) <= GEOFENCE_RADIUS_METERS) {
+        notified = true;
+        alert("Jesteś blisko celu!");
+    }
+}
+
+// 🔹 Geolokalizacja użytkownika
 navigator.geolocation.watchPosition(
     pos => {
         const userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
-        const insideGeofence = checkGeofence(userLatLng, delivery, GEOFENCE_RADIUS_METERS);
+        const deliveryLatLng = getDeliveryLatLng();
 
-        console.log("Dystans do celu:", userLatLng.distanceTo(delivery), "m");
+        const insideGeofence = checkGeofence(userLatLng, deliveryLatLng, GEOFENCE_RADIUS_METERS);
 
         if (insideGeofence && !notified) {
             notified = true;
@@ -85,7 +119,13 @@ navigator.geolocation.watchPosition(
     err => console.error(err),
     { enableHighAccuracy: true }
 );
+
+// 🔹 Dodatkowo w konsoli możesz symulować pozycję:
+window.simulatePosition = function(lat, lng) {
+    refreshMap(lat, lng);
+};
 </script>
+
 
 
 
