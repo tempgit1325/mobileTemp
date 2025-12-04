@@ -13,6 +13,5 @@ routing.getPlan().setWaypoints([
 
 shipment.pickup_lat = 49.80993354439840;
 shipment.pickup_lng = 19.043881326530180;
-updateRoute();
 
 simulatePosition(49.80993354439840, 19.043881326530180);
